@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { Component } from "react";
-import * as Stats from "stats.js";
 import * as dat from "dat.gui";
 import { initStats, initTrackballControls } from "../../utils/index";
 
@@ -8,14 +7,20 @@ class FirstScene extends Component {
   constructor(props) {
     super(props);
     this.canvas = null;
+    this.controlsGUI = null;
+    console.log("constructor");
   }
 
   componentDidMount() {
     this.init();
   }
+  componentWillUnmount() {
+    this.controlsGUI.destroy();
+  }
   init() {
-    console.log("init");
-    const stats = initStats();
+    console.log("init ");
+    let stats = initStats();
+
     this.canvas = document.querySelector(".webgl-output");
 
     // Create a scene
@@ -85,12 +90,14 @@ class FirstScene extends Component {
     const axes = new THREE.AxesHelper(20);
     scene.add(axes);
 
-    // GUI 使用.
+    // GUI  使用.
     const controls = new (function () {
       this.rotationSpeed = 0.02;
       this.bouncingSpeed = 0.03;
     })();
-    const gui = new dat.GUI({ name: "Controls" });
+    this.controlsGUI = new dat.GUI({ name: "Controls" });
+
+    const gui = this.controlsGUI;
     gui.add(controls, "rotationSpeed", 0, 0.5);
     gui.add(controls, "bouncingSpeed", 0, 0.9);
 
