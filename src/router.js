@@ -4,6 +4,8 @@ import Home from "./view/home/index";
 import Chapter01FirstScene from "./view/chapter-01/first-scene";
 import Chapter01MaterialsLight from "./view/chapter-01/materials-light";
 import Chapter02BasicScene from "./view/chapter-02/basic-scene";
+import Chapter03AmbientLight from "./view/chapter-03/ambient-light";
+import Chapter03Lensflares from "./view/chapter-03/lensflares";
 export const routers = () => {
   return (
     <Routes>
@@ -11,6 +13,8 @@ export const routers = () => {
       <Route path="/chapter-01/first-scene" element={<Chapter01FirstScene />} />
       <Route path="/chapter-01/materials-light" element={<Chapter01MaterialsLight />} />
       <Route path="/chapter-02/basic-scene" element={<Chapter02BasicScene />} />
+      <Route path="/chapter-03/ambient-light" element={<Chapter03AmbientLight />} />
+      <Route path="/chapter-03/lensflares" element={<Chapter03Lensflares />} />
     </Routes>
   );
 };
