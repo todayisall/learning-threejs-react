@@ -23,6 +23,10 @@ function Home() {
           <Link to="/chapter-03/ambient-light">ambient light</Link>
           <Link to="/chapter-03/lensflares">lensflares</Link>
         </div>
+        <div className="chapter">
+          其他:
+          <Link to="/other/cyberpunk-desk">CyberpunkDesk</Link>
+        </div>
       </nav>
     </div>
   );
