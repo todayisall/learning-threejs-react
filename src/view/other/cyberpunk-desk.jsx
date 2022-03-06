@@ -5,6 +5,12 @@ import { initStats } from "../../utils/index";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
+/**
+ * 1. 增加合适光照要有阴影.
+ * 2. 增加材质的质量.
+ * 3. 编辑模型增加模型交互. 
+ * 4. 增加缩放的声音.
+ */
 class CyberpunkDesk extends Component {
   constructor(props) {
     super(props);
