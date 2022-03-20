@@ -7,6 +7,7 @@ import Chapter02BasicScene from "./view/chapter-02/basic-scene";
 import Chapter03AmbientLight from "./view/chapter-03/ambient-light";
 import Chapter03Lensflares from "./view/chapter-03/lensflares";
 import CyberpunkDesk from "./view/other/cyberpunk-desk";
+import CyberpunkDesk2 from "./view/other/cyberpunk-desk_2";
 export const routers = () => {
   return (
     <Routes>
@@ -17,6 +18,7 @@ export const routers = () => {
       <Route path="/chapter-03/ambient-light" element={<Chapter03AmbientLight />} />
       <Route path="/chapter-03/lensflares" element={<Chapter03Lensflares />} />
       <Route path="/other/cyberpunk-desk" element={<CyberpunkDesk />} />
+      <Route path="/other/cyberpunk-desk2" element={<CyberpunkDesk2 />} />
     </Routes>
   );
 };

@@ -26,6 +26,8 @@ function Home() {
         <div className="chapter">
           其他:
           <Link to="/other/cyberpunk-desk">CyberpunkDesk</Link>
+          其他:
+          <Link to="/other/cyberpunk-desk2">Animation Desk</Link>
         </div>
       </nav>
     </div>
