@@ -5,12 +5,8 @@ import { initStats } from "../../utils/index";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-/**
- * 1. 增加合适光照要有阴影.
- * 2. 增加材质的质量.
- * 3. 编辑模型增加模型交互.
- * 4. 增加缩放的声音.
- */
+const TWEEN = require("@tweenjs/tween.js");
+
 class CyberpunkDesk extends Component {
   constructor(props) {
     super(props);
@@ -28,13 +24,9 @@ class CyberpunkDesk extends Component {
   init() {
     console.log("init ");
     let stats = initStats();
-    let mixer = null;
     let isPlaying = false;
-    const deskStatus = "up"; // down
-    const destAction = {
-      toUp: null,
-      toDown: null,
-    };
+    let deskStatus = "up"; // down
+    let posSound = null;
     this.canvas = document.querySelector(".webgl-output");
 
     // Create a scene
@@ -52,6 +44,8 @@ class CyberpunkDesk extends Component {
       0.1,
       500
     );
+    const listener = new THREE.AudioListener();
+    camera.add(listener);
     camera.lookAt(scene.position);
 
     // 渲染器
@@ -67,37 +61,11 @@ class CyberpunkDesk extends Component {
     // 添加控制器
     const controls = new OrbitControls(camera, renderer.domElement);
 
-    //controls.update() must be called after any manual changes to the camera's transform
     camera.position.set(-50, 50, -80);
     controls.update();
 
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    const doAction = (action) => {
-      console.log("开始动画:", action);
-
-      action.play();
-      isPlaying = true;
-      action.addEventListener("finished", () => {
-        console.log("结束动画:", action);
-        isPlaying = false;
-        action.stop();
-      });
-    };
     const renderScene = () => {
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(scene.children);
-      if (localStorage.getItem("deskStatus") === "up" && !isPlaying) {
-        if (destAction?.toDown) {
-          doAction(destAction?.toDown);
-        }
-      } else if (localStorage.getItem("deskStatus") === "down" && !isPlaying) {
-        if (destAction?.toUp) {
-          doAction(destAction?.toUp);
-        }
-      }
-
-      controls.update();
+      TWEEN.update();
       requestAnimationFrame(renderScene);
       stats.update();
       renderer.render(scene, camera);
@@ -113,7 +81,26 @@ class CyberpunkDesk extends Component {
     // Instantiate a loader
     const loader = new GLTFLoader();
 
-    // Load a glTF resource
+    const startAnimation = () => {
+      const deskTop = scene.getObjectByName("Table");
+      const deskPositionY = [1.2, 0.75];
+      console.log("deskStatus", deskStatus);
+      if (deskTop?.position && !isPlaying) {
+        posSound.play();
+        const gentTween = new TWEEN.Tween(deskTop.position)
+          .to(
+            {
+              y: deskPositionY[deskStatus === "up" ? 0 : 1],
+            },
+            2000
+          )
+          .onComplete((obj) => {
+            isPlaying = false;
+          })
+          .start();
+        isPlaying = true;
+      }
+    };
     loader.load(
       // resource URL
       "/models/left_desk/lifting_desk.gltf",
@@ -122,25 +109,18 @@ class CyberpunkDesk extends Component {
         gltf.scene.scale.set(15, 15, 15);
         scene.add(gltf.scene);
 
-        const animations = gltf.animations;
-        mixer = new THREE.AnimationMixer(gltf.scene);
-
-        // 加载动画
-        for (let i = 0; i < animations.length; i++) {
-          const animation = animations[i];
-          if (animation.name === "table_down_actoin") {
-            console.info("table_down_actoin");
-            const action = mixer.clipAction(animation);
-            destAction.toDown = action;
-            console.log("animations.toDown", destAction.toDown);
-          } else if (animation.name === "table_up_action") {
-            const action = mixer.clipAction(animation);
-            console.info("table_toUp_actoin");
-            destAction.toUp = action;
-            console.log("animations.toUp", destAction.toUp);
-          }
+        const deskTop = scene.getObjectByName("Table");
+        // 声音文件.
+        if (deskTop?.position) { 
+          posSound = new THREE.PositionalAudio(listener);
+          const audioLoader = new THREE.AudioLoader();
+          audioLoader.load('/models/left_desk/audio.mp3', (buffer) => {
+            posSound.setBuffer(buffer);
+            posSound.setRefDistance(30);
+            posSound.
+            posSound.setRolloffFactor(0.8);
+          })
         }
-
         renderScene();
       },
       // called while loading is progressing
@@ -153,13 +133,25 @@ class CyberpunkDesk extends Component {
       }
     );
 
-    const pointLight = new THREE.PointLight(0xf0f0f0, 1, 100);
+    const pointLight = new THREE.PointLight(0xffffff, 1, 100);
     pointLight.position.set(6, 25, 6);
     scene.add(pointLight);
 
     const sphereSize = 1;
     const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
     scene.add(pointLightHelper);
+
+    // used to determine the switch point for the light animation
+    const panelControls = new (function () {
+      this.deskStatus = deskStatus;
+    })();
+    this.controlsGUI = new dat.GUI({ name: "Controls" });
+    this.controlsGUI
+      .add(panelControls, "deskStatus", ["up", "down"])
+      .onChange((value) => {
+        deskStatus = value;
+        startAnimation();
+      });
   }
 
   render() {
